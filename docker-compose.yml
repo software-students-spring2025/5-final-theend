@@ -9,7 +9,7 @@ services:
     container_name: hmt-user-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
       - JWT_SECRET=${JWT_SECRET}
       - API_KEY=${API_KEY}
       - NODE_ENV=development
@@ -32,7 +32,7 @@ services:
     container_name: hmt-data-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
       - USER_SERVICE_URL=http://user-service:8000
       - NODE_ENV=development
       - PORT=8001
@@ -55,7 +55,7 @@ services:
     container_name: hmt-analytics-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI}
+      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
       - DATA_SERVICE_URL=http://data-service:8000
       - NODE_ENV=development
       - PORT=8002
@@ -103,44 +103,9 @@ services:
       - mongo-data:/data/db
       - ./mongo-init:/docker-entrypoint-initdb.d
 
-  # Prometheus for monitoring
-  prometheus:
-    image: prom/prometheus
-    container_name: hmt-prometheus
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    ports:
-      - "9090:9090"
-    networks:
-      - hmt-network
-    depends_on:
-      - user-service
-      - data-service
-      - analytics-service
-
-  # Grafana for visualization
-  grafana:
-    image: grafana/grafana
-    container_name: hmt-grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin_password
-    volumes:
-      - grafana-data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning
-    ports:
-      - "3000:3000"
-    networks:
-      - hmt-network
-    depends_on:
-      - prometheus
-
 networks:
   hmt-network:
     driver: bridge
 
 volumes:
   mongo-data:
-  prometheus-data:
-  grafana-data:
