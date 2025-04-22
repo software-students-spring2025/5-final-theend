@@ -93,7 +93,7 @@ jobs:
               --restart always \
               --network hmt-network \
               -p 8002:8000 \
-              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e MONGO_URI="mongodb+srv://tm3995:${{ secrets.DB_PASSWORD }}@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker" \
               -e DATA_SERVICE_URL="http://hmt-data-service:8000" \
               -e NODE_ENV=production \
               ${{ secrets.DOCKERHUB_USERNAME }}/health-tracker-analytics-service:latest
