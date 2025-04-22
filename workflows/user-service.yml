@@ -93,7 +93,7 @@ jobs:
               --restart always \
               --network hmt-network \
               -p 8000:8000 \
-              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e MONGO_URI="mongodb+srv://tm3995:${{ secrets.DB_PASSWORD }}@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e API_KEY="${{ secrets.API_KEY }}" \
               -e NODE_ENV=production \
