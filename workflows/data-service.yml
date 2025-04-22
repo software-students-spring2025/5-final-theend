@@ -1,1 +1,102 @@
+name: Data Service CI/CD
 
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'data-service/**'
+      - '.github/workflows/data-service.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'data-service/**'
+      - '.github/workflows/data-service.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          cd data-service
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Run tests with pytest
+        run: |
+          cd data-service
+          pytest --cov=app tests/ --cov-report=xml --cov-report=term-missing --cov-fail-under=80
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./data-service/coverage.xml
+          flags: data-service
+          fail_ci_if_error: true
+  
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./data-service
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/health-tracker-data-service:latest,${{ secrets.DOCKERHUB_USERNAME }}/health-tracker-data-service:${{ github.sha }}
+  
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    
+    steps:
+      - name: Deploy to Digital Ocean
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DIGITALOCEAN_HOST }}
+          username: ${{ secrets.DIGITALOCEAN_USERNAME }}
+          key: ${{ secrets.DIGITALOCEAN_PRIVATE_KEY }}
+          script: |
+            cd /app
+            # Pull the latest image
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/health-tracker-data-service:latest
+            
+            # Stop and remove the current container if it exists
+            docker stop hmt-data-service || true
+            docker rm hmt-data-service || true
+            
+            # Run the new container
+            docker run -d \
+              --name hmt-data-service \
+              --restart always \
+              --network hmt-network \
+              -p 8001:8000 \
+              -e MONGO_URI="${{ secrets.MONGO_URI }}" \
+              -e USER_SERVICE_URL="http://hmt-user-service:8000" \
+              -e NODE_ENV=production \
+              ${{ secrets.DOCKERHUB_USERNAME }}/health-tracker-data-service:latest
+            
+            # Verify the container is running
+            docker ps | grep hmt-data-service
