@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="nutrition-title">Nutrition Breakdown</h2>
+  <canvas id="nutritionChart" width="400" height="200"></canvas>
+  <script>
+    const nutLabels = JSON.parse('{{ labels | tojson | safe }}');
+    const nutData = JSON.parse('{{ values | tojson | safe }}');
+    initChart('nutritionChart', 'pie', nutLabels, nutData, 'Macronutrient Distribution');
+  </script>
+{% endblock %}

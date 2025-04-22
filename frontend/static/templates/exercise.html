@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="exercise-title">Exercise Activity (minutes per day)</h2>
+  <canvas id="exerciseChart" width="400" height="200"></canvas>
+  <script>
+    const exerciseLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const exerciseData = JSON.parse('{{ data | tojson | safe }}');
+    initChart('exerciseChart', 'bar', exerciseLabels, exerciseData, 'Minutes Exercised');
+  </script>
+{% endblock %}

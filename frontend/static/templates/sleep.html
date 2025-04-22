@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="sleep-title">Sleep Trends (last 7 days)</h2>
+  <canvas id="sleepChart" width="400" height="200"></canvas>
+  <script>
+    const sleepLabels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const sleepData = JSON.parse('{{ data | tojson | safe }}');
+    initChart('sleepChart', 'line', sleepLabels, sleepData, 'Hours of Sleep');
+  </script>
+{% endblock %}
