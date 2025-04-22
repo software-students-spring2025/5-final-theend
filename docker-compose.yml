@@ -1,1 +1,146 @@
+version: '3.8'
 
+services:
+  # User Management Service
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: hmt-user-service
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_KEY=${API_KEY}
+      - NODE_ENV=development
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    networks:
+      - hmt-network
+    depends_on:
+      - mongo-dev
+
+  # Data Ingestion Service
+  data-service:
+    build:
+      context: ./data-service
+      dockerfile: Dockerfile
+    container_name: hmt-data-service
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - USER_SERVICE_URL=http://user-service:8000
+      - NODE_ENV=development
+      - PORT=8001
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./data-service:/app
+      - /app/node_modules
+    networks:
+      - hmt-network
+    depends_on:
+      - user-service
+      - mongo-dev
+
+  # Analytics Engine
+  analytics-service:
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    container_name: hmt-analytics-service
+    restart: unless-stopped
+    environment:
+      - MONGO_URI=${MONGO_URI}
+      - DATA_SERVICE_URL=http://data-service:8000
+      - NODE_ENV=development
+      - PORT=8002
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./analytics-service:/app
+      - /app/node_modules
+    networks:
+      - hmt-network
+    depends_on:
+      - data-service
+      - mongo-dev
+
+  # Frontend Dashboard
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hmt-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - hmt-network
+    depends_on:
+      - user-service
+      - data-service
+      - analytics-service
+
+  # Local MongoDB for development
+  mongo-dev:
+    image: mongo:latest
+    container_name: hmt-mongo-dev
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+
+  # Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus
+    container_name: hmt-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - hmt-network
+    depends_on:
+      - user-service
+      - data-service
+      - analytics-service
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana
+    container_name: hmt-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin_password
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    networks:
+      - hmt-network
+    depends_on:
+      - prometheus
+
+networks:
+  hmt-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  prometheus-data:
+  grafana-data:
