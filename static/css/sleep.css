@@ -1,0 +1,26 @@
+body {
+    background-color: #e0f7ff;
+  }
+  h2 {
+    color: #0077cc;
+  }
+  .status.optimal {
+    color: green;
+  }
+  .status.suboptimal {
+    color: red;
+  }
+  
+  /* assets/css/nutrition.css */
+  body {
+    background-color: #e8f5e9;
+  }
+  h2 {
+    color: #2e7d32;
+  }
+  .status.optimal {
+    color: green;
+  }
+  .status.suboptimal {
+    color: red;
+  }

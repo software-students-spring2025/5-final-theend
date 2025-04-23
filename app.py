@@ -147,12 +147,11 @@ def logout():
 def log_sleep():
     if "user_id" not in session:
         return redirect("/login")
-
+    user_id = ObjectId(session["user_id"])
     if request.method == "POST":
-        user_id = ObjectId(session["user_id"])
         hours_slept = float(request.form["hours_slept"])
-        sleep_notes = request.form["sleep_notes"]
-        sleep_quality = request.form["sleep_quality"]
+        sleep_notes = request.form.get("sleep_notes", "")
+        sleep_quality = request.form.get("sleep_quality", "")
         date = request.form["date"]
 
         db.sleep_logs.insert_one({
@@ -163,9 +162,60 @@ def log_sleep():
             "date": date
         })
 
-        return redirect("/dashboard")
+        return redirect(url_for("log_sleep"))
+    sleep_entries = list(db.sleep_logs.find({"user_id": user_id}))
+    sleep_entries.sort(key=lambda e: e["date"], reverse=True)
+    return render_template("log_sleep.html", sleep_entries=sleep_entries)
 
-    return render_template("log_sleep.html")
+@app.route("/log/nutrition", methods=["GET", "POST"])
+def log_nutrition():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    user_id = ObjectId(session["user_id"])
+    if request.method == "POST":
+        carbs = float(request.form["carbs"])
+        fats = float(request.form["fats"])
+        proteins = float(request.form["proteins"])
+        date = request.form["date"]
+        total = carbs + fats + proteins
+        balanced = (
+            total > 0 and
+            0.4 <= carbs/total <= 0.6 and
+            0.2 <= fats/total <= 0.4 and
+            0.2 <= proteins/total <= 0.4
+        )
+        db.nutrition_logs.insert_one({
+            "user_id": user_id,
+            "date": date,
+            "carbs": carbs,
+            "fats": fats,
+            "proteins": proteins,
+            "balanced": balanced
+        })
+        return redirect(url_for("log_nutrition"))
+    nutrition_entries = list(db.nutrition_logs.find({"user_id": user_id}))
+    nutrition_entries.sort(key=lambda e: e["date"], reverse=True)
+    return render_template("log_nutrition.html", nutrition_entries=nutrition_entries)
+
+@app.route("/log/exercise", methods=["GET", "POST"])
+def log_exercise():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    user_id = ObjectId(session["user_id"])
+    if request.method == "POST":
+        exercise_type = request.form["exercise_type"]
+        duration = float(request.form["duration"])
+        date = request.form["date"]
+        db.exercise_logs.insert_one({
+            "user_id": user_id,
+            "date": date,
+            "exercise_type": exercise_type,
+            "duration": duration
+        })
+        return redirect(url_for("log_exercise"))
+    exercise_entries = list(db.exercise_logs.find({"user_id": user_id}))
+    exercise_entries.sort(key=lambda e: e["date"], reverse=True)
+    return render_template("log_exercise.html", exercise_entries=exercise_entries)
 
 if __name__ == "__main__":
     app.run(debug=True)
