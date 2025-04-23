@@ -1,0 +1,12 @@
+body {
+    background-color: #f3e5f5;
+  }
+  h2 {
+    color: #6a1b9a;
+  }
+  .status.optimal {
+    color: green;
+  }
+  .status.suboptimal {
+    color: red;
+  }

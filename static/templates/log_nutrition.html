@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exercise.css') }}">
+{% endblock %}
+{% block content %}
+  <h2>Log Exercise</h2>
+  <form method="post">
+    <label for="date">Date:</label>
+    <input type="date" id="date" name="date" required>
+
+    <label for="exercise_type">Type:</label>
+    <input type="text" id="exercise_type" name="exercise_type" required>
+
+    <label for="duration">Duration (min):</label>
+    <input type="number" id="duration" name="duration" required>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>Past Exercise Entries</h3>
+  <ul>
+    {% for entry in exercise_entries %}
+      <li class="status {% if entry.duration >= 45 %}optimal{% else %}suboptimal{% endif %}">
+        {{ entry.date }}: {{ entry.exercise_type }} for {{ entry.duration }} mins
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
