@@ -6,9 +6,17 @@ import os
 import certifi
 from dotenv import load_dotenv
 from flask_session import Session
-
+from pymongo.errors import ConnectionFailure
 # Load .env variables
 load_dotenv()
+
+try:
+    client = MongoClient(os.getenv("MONGO_URI"))
+    # Force connection on a request as the connect=True parameter of MongoClient may not trigger it
+    client.admin.command("ping")
+    print("✅ Connection successful!")
+except ConnectionFailure as e:
+    print("❌ Connection failed:", e)
 
 # MongoDB setup
 uri = os.getenv("MONGO_URI")
@@ -39,6 +47,7 @@ def signup():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        email = request.form["email"]
 
         existing_user = db.users.find_one({"username": username})
         if existing_user:
@@ -46,7 +55,8 @@ def signup():
 
         db.users.insert_one({
             "username": username,
-            "password": password
+            "password": password ,
+            "email": email
         })
         return redirect("/login")
 
@@ -58,10 +68,14 @@ def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        email = request.form["email"]
+
 
         user = db.users.find_one({"username": username})
         if not user:
             return "<h3>User not found.</h3>"
+        if user.get("email")!= email:
+            return "<h3>Incorrect email.</h3>"
         if user.get("password") != password:
             return "<h3>Incorrect password.</h3>"
 
@@ -69,6 +83,44 @@ def login():
         return redirect("/dashboard")
 
     return render_template("login.html")
+
+#user info
+@app.route("/user_profile", methods=["GET", "POST"])
+def user_profile():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = ObjectId(session["user_id"])
+
+    if request.method == "POST":
+            update_data = {
+                "first_name": request.form.get("first_name"),
+                "last_name": request.form.get("last_name"),
+                "date_of_birth": request.form.get("date_of_birth"),
+                "gender": request.form.get("gender"),
+                "height": {
+                    "value": float(request.form.get("height_value")),
+                    "unit": request.form.get("height_unit")
+                },
+                "weight": {
+                    "value": float(request.form.get("weight_value")),
+                    "unit": request.form.get("weight_unit")
+                }
+            }
+
+            db.users.update_one(
+                {"_id": user_id},
+                {"$set": update_data}
+            )
+
+            return redirect("/dashboard")  # or wherever you want
+
+        
+
+    # If GET, load current profile info to prefill form
+    user_data = db.users.find_one({"_id": user_id})
+    return render_template("user_profile.html", user=user_data)
+   
 
 # DASHBOARD
 @app.route("/dashboard")
@@ -78,11 +130,11 @@ def dashboard():
 
     user = db.users.find_one({"_id": ObjectId(session["user_id"])})
      # Fetch all sleep logs for the logged-in user
-    sleep_logs = list(db.sleep_logs.find({"user_id": user["_id"]}))
+    #sleep_logs = list(db.sleep_logs.find({"user_id": user["_id"]}))
      # Sort sleep logs by date (latest first)
-    sleep_logs.sort(key=lambda x: x["date"], reverse=True)
-    latest_sleep = sleep_logs[0] if sleep_logs else None
-    return render_template("results.html", user=user, latest_sleep=latest_sleep)
+    #sleep_logs.sort(key=lambda x: x["date"], reverse=True)
+    #latest_sleep = sleep_logs[0] if sleep_logs else None
+    return render_template("results.html", user=user)
 
 # LOGOUT
 @app.route("/logout")
