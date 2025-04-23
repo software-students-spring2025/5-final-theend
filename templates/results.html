@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head><title>Dashboard</title></head>
+<body>
+  <h1>Welcome, {{ user.username }}</h1>
+  <h1>{{user.password}}</h1>
+  <a href="{{ url_for('user_profile')}}">View My Profile</a>
+
+<a href="/log/sleep">
+    <button>Log New Sleep Entry</button>
+  </a>
+  <p><a href="/logout">Logout</a></p>
+</body>
+</html>

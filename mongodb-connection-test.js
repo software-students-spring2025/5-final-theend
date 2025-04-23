@@ -2,7 +2,7 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 // Connection URI from environment variables
-const uri = process.env.MONGO_URI || "mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker";
+const uri = process.env.MONGO_URI || "mongodb+srv://tm3995:R1y2F5ks1GqkJslL@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker";
 
 async function testConnection() {
   if (!uri) {

@@ -1,5 +1,5 @@
 const mongo = require('mongodb').MongoClient;
-const uri = "mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker";
+const uri = "mongodb+srv://tm3995:R1y2F5ks1GqkJslL@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker";
 async function setupDatabase() {
   try {
     const client = await mongo.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
