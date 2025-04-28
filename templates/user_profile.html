@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>User Profile</title>
+{% extends "layout.html" %}
+{% block title %}Edit Profile – Health Tracker{% endblock %}
+
+{% block head %}
   <style>
     body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
     .profile-container { background: white; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; }
     button { padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; }
   </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
   <div class="profile-container">
     <h2>User Profile</h2>
     <form method="POST">
@@ -47,5 +47,4 @@
       <button type="submit">Update Profile</button>
     </form>
   </div>
-</body>
-</html>
+  {% endblock %}

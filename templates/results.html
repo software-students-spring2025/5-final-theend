@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head><title>Dashboard</title></head>
-<body>
+{% extends "layout.html" %}
+{% block title %}Dashboard – Health Tracker{% endblock %}
+
+{% block content %}
   <h1>Welcome, {{ user.username }}</h1>
   <h1>{{user.password}}</h1>
   <a href="{{ url_for('user_profile')}}">View My Profile</a>
@@ -11,5 +11,4 @@
   </a>
   <p><a href="/logout">Logout</a></p>
   <p><a href="/activity_feed">full report</a></p>
-</body>
-</html>
+  {% endblock %}
