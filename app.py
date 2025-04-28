@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session,url_for
 from bson.objectid import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -7,6 +7,8 @@ import certifi
 from dotenv import load_dotenv
 from flask_session import Session
 from pymongo.errors import ConnectionFailure
+from datetime import datetime ,timezone
+
 # Load .env variables
 load_dotenv()
 
@@ -112,8 +114,8 @@ def user_profile():
                 {"_id": user_id},
                 {"$set": update_data}
             )
-
-            return redirect("/dashboard")  # or wherever you want
+            user_data = db.users.find_one({"_id": user_id})
+            return render_template("user_profile.html", user=user_data)
 
         
 
@@ -159,13 +161,16 @@ def log_sleep():
             "hours_slept": hours_slept,
             "sleep_notes": sleep_notes,
             "sleep_quality": sleep_quality,
-            "date": date
+            "date": date,
+            "timestamp": datetime.now(timezone.utc)
         })
 
         return redirect(url_for("log_sleep"))
     sleep_entries = list(db.sleep_logs.find({"user_id": user_id}))
     sleep_entries.sort(key=lambda e: e["date"], reverse=True)
     return render_template("log_sleep.html", sleep_entries=sleep_entries)
+
+
 
 @app.route("/log/nutrition", methods=["GET", "POST"])
 def log_nutrition():
@@ -190,7 +195,8 @@ def log_nutrition():
             "carbs": carbs,
             "fats": fats,
             "proteins": proteins,
-            "balanced": balanced
+            "balanced": balanced,
+            "timestamp": datetime.now(timezone.utc)
         })
         return redirect(url_for("log_nutrition"))
     nutrition_entries = list(db.nutrition_logs.find({"user_id": user_id}))
@@ -210,12 +216,44 @@ def log_exercise():
             "user_id": user_id,
             "date": date,
             "exercise_type": exercise_type,
-            "duration": duration
+            "duration": duration,
+            "timestamp": datetime.now(timezone.utc)
         })
         return redirect(url_for("log_exercise"))
     exercise_entries = list(db.exercise_logs.find({"user_id": user_id}))
     exercise_entries.sort(key=lambda e: e["date"], reverse=True)
     return render_template("log_exercise.html", exercise_entries=exercise_entries)
+
+#########
+@app.route("/activity_feed")
+def activity_feed():
+    if "user_id" not in session:
+        return redirect("/login")
+
+    user_id = ObjectId(session["user_id"])
+
+    # Fetch from  collections
+    sleep_logs = list(db.sleep_logs.find({"user_id": user_id}))
+    for sleep in sleep_logs:
+        sleep["type"] = "Sleep"
+        sleep["timestamp"] = sleep.get("timestamp", datetime.min)
+
+    nutrition_logs = list(db.nutrition_logs.find({"user_id": user_id}))
+    for nutrition in nutrition_logs:
+        nutrition["type"] = "Nutrition"
+        nutrition["timestamp"] = nutrition.get("timestamp", datetime.min)
+
+    exercise_logs = list(db.exercise_logs.find({"user_id": user_id}))
+    for exercise in exercise_logs:
+        exercise["type"] = "Exercise"
+        exercise["timestamp"] = exercise.get("timestamp", datetime.min)
+
+    # Combine all logs
+    all_entries = sleep_logs + nutrition_logs + exercise_logs
+    all_entries.sort(key=lambda x: x["timestamp"], reverse=True)
+
+    return render_template("reports.html", entries=all_entries)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Activity Feed</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    .entry { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .type { font-weight: bold; color: #4CAF50; }
+    .timestamp { color: gray; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Activity Feed</h2>
+
+    {% for entry in entries %}
+      <div class="entry">
+        <div class="type">{{ entry.type }}</div>
+        <div class="timestamp">
+          {{ entry.timestamp.strftime("%Y-%m-%d %H:%M:%S") if entry.timestamp else "Unknown time" }}
+        </div>
+
+        <div style="margin-top: 10px;">
+          {% if entry.type == "Sleep" %}
+            <p><strong>Hours Slept:</strong> {{ entry.hours_slept }}</p>
+            <p><strong>Sleep Quality:</strong> {{ entry.sleep_quality }}</p>
+            <p><strong>Notes:</strong> {{ entry.sleep_notes }}</p>
+          {% elif entry.type == "Nutrition" %}
+            <p><strong>Carbs:</strong> {{ entry.carbs }}g</p>
+            <p><strong>Fats:</strong> {{ entry.fats }}g</p>
+            <p><strong>Proteins:</strong> {{ entry.proteins }}g</p>
+            <p><strong>Balanced:</strong> {{ "Yes" if entry.balanced else "No" }}</p>
+          {% elif entry.type == "Exercise" %}
+            <p><strong>Exercise Type:</strong> {{ entry.exercise_type }}</p>
+            <p><strong>Duration:</strong> {{ entry.duration }} minutes</p>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <p>No activity yet.</p>
+    {% endfor %}
+  </div>
+</body>
+</html>
