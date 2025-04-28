@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head><title>Sign Up</title></head>
-<body>
+{% extends "layout.html" %}
+{% block title %}Sign Up – Health Tracker{% endblock %}
+
+{% block content %}
   <h2>Sign Up</h2>
   <form action="/signup" method="POST">
     Username: <input type="text" name="username" required><br>
@@ -10,5 +10,4 @@
     <button type="submit">Register</button>
   </form>
   <p>Already have an account? <a href="/login">Login</a></p>
-</body>
-</html>
+  {% endblock %}
