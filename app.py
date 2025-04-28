@@ -22,12 +22,20 @@ except ConnectionFailure as e:
 
 # MongoDB setup
 uri = os.getenv("MONGO_URI")
-client = MongoClient(uri, server_api=ServerApi('1'), tlsCAFile=certifi.where())
+import certifi
+from pymongo import MongoClient
+
+client = MongoClient(
+    os.environ["MONGO_URI"],
+    tlsCAFile=certifi.where(),
+    tls=True,
+)
+
 Mongo_DBNAME = os.getenv("MONGO_DBNAME")
 db = client[Mongo_DBNAME]
 
 # Flask setup
-app = Flask(__name__, static_folder='assets')
+app = Flask(__name__, static_folder='assets/templates')
 app.secret_key = os.getenv("SECRET_KEY", "devkey")
 
 # Session setup
