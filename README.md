@@ -1,9 +1,9 @@
 # TheEnd: Final Project – Spring 2025
 
-![CI/CD: User Service](https://github.com/software-students-spring2025/5-final-theend/workflows/user-service.yml/badge.svg)
-![CI/CD: Frontend](https://github.com/software-students-spring2025/5-final-theend/workflows/frontend.yml/badge.svg)
-![CI/CD: Data Service](https://github.com/software-students-spring2025/5-final-theend/workflows/data-service.yml/badge.svg)
-![CI/CD: Analytics Service](https://github.com/software-students-spring2025/5-final-theend/workflows/analytics-service.yml/badge.svg)
+![CI/CD: User Service](https://github.com/software-students-spring2025/5-final-theend/actions/workflows/user-service.yml/badge.svg)
+![CI/CD: Frontend](https://github.com/software-students-spring2025/5-final-theend/actions/workflows/frontend.yml/badge.svg)
+![CI/CD: Data Service](https://github.com/software-students-spring2025/5-final-theend/actions/workflows/data-service.yml/badge.svg)
+![CI/CD: Analytics Service](https://github.com/software-students-spring2025/5-final-theend/actions/workflows/analytics-service.yml/badge.svg)
 
 ---
 
