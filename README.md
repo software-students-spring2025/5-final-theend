@@ -61,7 +61,12 @@ git clone https://github.com/software-students-spring2025/5-final-theend.git
 cd 5-final-theend
 ```
 
-2. **Configure Environment Variables**
+2. **Install pip files and requirements**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Configure Environment Variables**
 
 Copy the sample .env.example to .env and edit the values:
 
@@ -71,13 +76,13 @@ cp .env.example .env
 
 Replace placeholder values with your actual configuration.
 
-3. **Build and Run with Docker Compose**
+4. **Build and Run with Docker Compose**
 
 ```bash
 docker-compose up --build
 ```
 
-4. **Access the Application**
+5. **Access the Application**
 
 Upon running the Docker Compose command above, you will be given a link in your terminal.
 
