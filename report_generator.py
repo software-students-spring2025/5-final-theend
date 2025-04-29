@@ -3,13 +3,13 @@ import base64
 import datetime
 from bson.objectid import ObjectId
 import matplotlib.pyplot as plt
-from flask import current_app, render_template, make_response
+from flask import render_template, make_response
 import jinja2
 
 class ReportGenerator:
-    def __init__(self, user_id):
+    def __init__(self, user_id, database):
         self.user_id = ObjectId(user_id)
-        self.db = current_app.db
+        self.db = database
         self.user = self.db.users.find_one({"_id": self.user_id})
         if not self.user:
             raise ValueError("User not found")
