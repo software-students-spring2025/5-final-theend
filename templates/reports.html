@@ -1,135 +1,45 @@
 {% extends "layout.html" %}
-{% block title %}Reports – Health Tracker{% endblock %}
+{% block title %}Activity Feed – Health Tracker{% endblock %}
+
+{% block head %}
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 800px; margin: auto; }
+    .entry { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .type { font-weight: bold; color: #4CAF50; }
+    .timestamp { color: gray; font-size: 0.9em; }
+  </style>
+{% endblock %}
 
 {% block content %}
-<ul class="nav nav-tabs mb-4">
-  <li class="nav-item">
-    <a class="nav-link {% if not show_form %}active{% endif %}" href="{{ url_for('reports') }}">My Reports</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {% if show_form %}active{% endif %}" href="{{ url_for('reports', generate=True) }}">Generate New Report</a>
-  </li>
-</ul>
+  <div class="container">
+    <h2>Activity Feed</h2>
 
-{% if error %}
-<div class="alert alert-danger" role="alert">
-  {{ error }}
-</div>
-{% endif %}
+    {% for entry in entries %}
+      <div class="entry">
+        <div class="type">{{ entry.type }}</div>
+        <div class="timestamp">
+          {{ entry.timestamp.strftime("%Y-%m-%d %H:%M:%S") if entry.timestamp else "Unknown time" }}
+        </div>
 
-{% if show_form %}
-  <h2>Generate New Health Report</h2>
-  <form action="{{ url_for('reports') }}" method="post" class="form">
-    <div class="form-group mb-3">
-      <label for="report_type">Report Type</label>
-      <select name="report_type" id="report_type" class="form-control" required>
-        <option value="daily">Daily Report</option>
-        <option value="weekly">Weekly Report</option>
-        <option value="monthly" selected>Monthly Report</option>
-        <option value="custom">Custom Date Range</option>
-      </select>
-    </div>
-    
-    <div class="form-group mb-3">
-      <label for="start_date">Start Date</label>
-      <input type="date" name="start_date" id="start_date" class="form-control" required>
-    </div>
-    
-    <div class="form-group mb-3">
-      <label for="end_date">End Date</label>
-      <input type="date" name="end_date" id="end_date" class="form-control" required>
-    </div>
-    
-    <div class="form-group mb-3">
-      <label>Metrics to Include</label>
-      <div class="form-check">
-        <input type="checkbox" name="metrics" value="sleep" id="sleep" class="form-check-input" checked>
-        <label for="sleep" class="form-check-label">Sleep</label>
+        <div style="margin-top: 10px;">
+          {% if entry.type == "Sleep" %}
+            <p><strong>Hours Slept:</strong> {{ entry.hours_slept }}</p>
+            <p><strong>Sleep Quality:</strong> {{ entry.sleep_quality }}</p>
+            <p><strong>Notes:</strong> {{ entry.sleep_notes }}</p>
+          {% elif entry.type == "Nutrition" %}
+            <p><strong>Carbs:</strong> {{ entry.carbs }}g</p>
+            <p><strong>Fats:</strong> {{ entry.fats }}g</p>
+            <p><strong>Proteins:</strong> {{ entry.proteins }}g</p>
+            <p><strong>Balanced:</strong> {{ "Yes" if entry.balanced else "No" }}</p>
+          {% elif entry.type == "Exercise" %}
+            <p><strong>Exercise Type:</strong> {{ entry.exercise_type }}</p>
+            <p><strong>Duration:</strong> {{ entry.duration }} minutes</p>
+          {% endif %}
+        </div>
       </div>
-      <div class="form-check">
-        <input type="checkbox" name="metrics" value="nutrition" id="nutrition" class="form-check-input" checked>
-        <label for="nutrition" class="form-check-label">Nutrition</label>
-      </div>
-      <div class="form-check">
-        <input type="checkbox" name="metrics" value="exercise" id="exercise" class="form-check-input" checked>
-        <label for="exercise" class="form-check-label">Exercise</label>
-      </div>
-    </div>
-    
-    <button type="submit" class="btn btn-primary">Generate Report</button>
-  </form>
-
-  <script>
-    // Set default date values
-    document.addEventListener('DOMContentLoaded', function() {
-      const today = new Date();
-      const lastMonth = new Date();
-      lastMonth.setMonth(today.getMonth() - 1);
-      
-      document.getElementById('end_date').valueAsDate = today;
-      document.getElementById('start_date').valueAsDate = lastMonth;
-      
-      // Change date range based on report type
-      document.getElementById('report_type').addEventListener('change', function() {
-        const reportType = this.value;
-        const today = new Date();
-        let startDate = new Date();
-        
-        switch (reportType) {
-          case 'daily':
-            startDate = today;
-            break;
-          case 'weekly':
-            startDate = new Date(today);
-            startDate.setDate(today.getDate() - 7);
-            break;
-          case 'monthly':
-            startDate = new Date(today);
-            startDate.setMonth(today.getMonth() - 1);
-            break;
-          case 'custom':
-            // Don't change dates for custom
-            return;
-        }
-        
-        document.getElementById('end_date').valueAsDate = today;
-        document.getElementById('start_date').valueAsDate = startDate;
-      });
-    });
-  </script>
-{% else %}
-  <!-- Reports List -->
-  <h2>Your Health Reports</h2>
-  
-  {% if reports %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Type</th>
-          <th>Date Range</th>
-          <th>Created</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for report in reports %}
-        <tr>
-          <td>{{ report.title }}</td>
-          <td>{{ report.type }}</td>
-          <td>{{ report.start_date }} to {{ report.end_date }}</td>
-          <td>{{ report.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-          <td>
-            <a href="{{ url_for('reports', report_id=report._id) }}" class="btn btn-sm btn-outline-primary">Download</a>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <div class="alert alert-info">
-      <p>You haven't generated any reports yet.</p>
-    </div>
-  {% endif %}
-{% endif %}
-{% endblock %}
+    {% else %}
+      <p>No activity yet.</p>
+    {% endfor %}
+  </div>
+  {% endblock %}

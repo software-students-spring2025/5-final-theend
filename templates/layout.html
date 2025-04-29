@@ -84,7 +84,7 @@ z-index: 1000;
             <a class="nav-link {% if request.endpoint == 'log_exercise' %}active{% endif %}" href="{{ url_for('log_exercise') }}">Log Exercise</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link {% if request.endpoint == 'reports' %}active{% endif %}" href="{{ url_for('reports') }}">Reports</a>
+            <a class="nav-link {% if request.endpoint == 'activity_feed' %}active{% endif %}" href="{{ url_for('activity_feed') }}">Reports</a>
           </li>
         </ul>
         <ul class="navbar-nav">
