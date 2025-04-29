@@ -3,6 +3,7 @@ version: '3.8'
 services:
   # User Management Service
   user-service:
+  image: tmathur2005/user-service:latest
     build:
       context: ./user-service
       dockerfile: Dockerfile
@@ -27,6 +28,7 @@ services:
 
   # Data Ingestion Service
   data-service:
+  image: tmathur2005/data-service:latest
     build:
       context: ./data-service
       dockerfile: Dockerfile
@@ -51,6 +53,7 @@ services:
 
   # Analytics Engine
   analytics-service:
+  image: tmathur2005/analytics-service:latest
     build:
       context: ./analytics-service
       dockerfile: Dockerfile
