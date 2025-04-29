@@ -79,6 +79,13 @@ docker-compose up --build
 
 4. **Access the Application**
 
-Upon running the docker compose command above, you will be given a link in your terminal that will direct you to the web application!
+Upon running the Docker Compose command above, you will be given a link in your terminal.
+
+It should look something like this:
+```bash
+http://localhost:5000
+```
+
+Upon clicking the link, you will be redirected to the web application.
 
 You're all set to begin tracking your health data. Welcome to TheEnd!
