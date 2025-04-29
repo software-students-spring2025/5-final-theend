@@ -6,7 +6,7 @@
 
 ## 🧠 Project Overview
 
-**TheEnd** A web platform where users log and view their health metrics — like sleep, nutrition, and exercise.
+**TheEnd** A web platform that aims to support mental health by providing users with personalized tools and resources. The app offers nutritio, sleeping, and exercise logging features to help users monitor their emotional, physical, and mental well-being over time. The goal is to promote mindfulness and emotional self-awareness through regular self-check-ins.
 
 ---
 
