@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session,url_for
+from flask import Flask, render_template, request, redirect, session,url_for, make_response
 from bson.objectid import ObjectId
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -8,8 +8,10 @@ from dotenv import load_dotenv
 from flask_session import Session
 from pymongo.errors import ConnectionFailure
 from datetime import datetime ,timezone
+import matplotlib.pyplot as plt
+import io
+import base64
 
-# Load .env variables
 load_dotenv()
 
 try:
@@ -262,6 +264,68 @@ def activity_feed():
 
     return render_template("reports.html", entries=all_entries)
 
+@app.route("/reports", methods=["GET", "POST"])
+def reports():
+    if "user_id" not in session:
+        return redirect("/login")
+    
+    user_id = session["user_id"]
+    error = None
+    
+    from report_generator import ReportGenerator
+    
+    try:
+        generator = ReportGenerator(user_id)
+        
+        report_id = request.args.get('report_id')
+        if report_id:
+            try:
+                html_content, filename = generator.get_report_by_id(report_id)
+                response = make_response(html_content)
+                response.headers["Content-Type"] = "text/html"
+                response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+                return response
+            except Exception as e:
+                error = f"Error loading report: {str(e)}"
+        
+        if request.method == "POST":
+            report_type = request.form["report_type"]
+            start_date = request.form["start_date"]
+            end_date = request.form["end_date"]
+            metrics = request.form.getlist("metrics")
+            
+            if not metrics:
+                error = "Please select at least one metric to include in your report."
+            else:
+                try:
+                    html_content, filename = generator.generate_report(
+                        report_type=report_type,
+                        start_date=start_date,
+                        end_date=end_date,
+                        metrics=metrics
+                    )
+                    
+                    response = make_response(html_content)
+                    response.headers["Content-Type"] = "text/html"
+                    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+                    return response
+                except Exception as e:
+                    error = f"Error generating report: {str(e)}"
+        
+        reports = generator.get_user_reports()
+        
+        show_form = request.args.get('generate') == 'True'
+        
+        return render_template("reports.html", 
+                              reports=reports, 
+                              show_form=show_form, 
+                              error=error)
+    
+    except Exception as e:
+        return render_template("reports.html", 
+                              reports=[], 
+                              show_form=False, 
+                              error=f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
     app.run(debug=True)
