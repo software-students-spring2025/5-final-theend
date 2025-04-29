@@ -327,4 +327,5 @@ def reports():
                               error=f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8080)  # DigitalOcean uses port 8080 by default
+
