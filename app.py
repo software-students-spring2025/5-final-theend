@@ -264,6 +264,7 @@ def activity_feed():
 
     return render_template("reports.html", entries=all_entries)
 
+
 @app.route("/reports", methods=["GET", "POST"])
 def reports():
     if "user_id" not in session:
@@ -311,7 +312,7 @@ def reports():
                     return response
                 except Exception as e:
                     error = f"Error generating report: {str(e)}"
-        
+
         reports = generator.get_user_reports()
         
         show_form = request.args.get('generate') == 'True'
