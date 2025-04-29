@@ -264,7 +264,6 @@ def activity_feed():
 
     return render_template("reports.html", entries=all_entries)
 
-
 @app.route("/reports", methods=["GET", "POST"])
 def reports():
     if "user_id" not in session:
@@ -276,8 +275,7 @@ def reports():
     from report_generator import ReportGenerator
     
     try:
-        generator = ReportGenerator(user_id)
-        
+        generator = ReportGenerator(user_id, db) 
         report_id = request.args.get('report_id')
         if report_id:
             try:
