@@ -38,9 +38,9 @@ All services are Dockerized and communicate via REST APIs.
 
 ## 🐳 DockerHub Container Images
 
-- [User Service](https://hub.docker.com/r/yourdockerhubusername/user-service)
-- [Data Service](https://hub.docker.com/r/yourdockerhubusername/data-service)
-- [Analytics Service](https://hub.docker.com/r/yourdockerhubusername/analytics-service)
+- [User Service](https://hub.docker.com/r/tmathur2005/user-service)
+- [Data Service](https://hub.docker.com/r/tmathur2005/data-service)
+- [Analytics Service](https://hub.docker.com/r/tmathur2005/analytics-service)
 
 ---
 
