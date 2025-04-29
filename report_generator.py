@@ -2,6 +2,8 @@ import io
 import base64
 import datetime
 from bson.objectid import ObjectId
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from flask import render_template, make_response
 import jinja2
