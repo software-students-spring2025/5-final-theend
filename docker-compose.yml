@@ -9,15 +9,16 @@ services:
     container_name: hmt-user-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
+      - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
       - API_KEY=${API_KEY}
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
       - PORT=8000
     ports:
       - "8000:8000"
     volumes:
       - ./user-service:/app
+      - ../templates:/app/templates
       - /app/node_modules
     networks:
       - hmt-network
@@ -32,14 +33,15 @@ services:
     container_name: hmt-data-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
+      - MONGO_URI=${MONGO_URI}
       - USER_SERVICE_URL=http://user-service:8000
-      - NODE_ENV=development
+      - NODE_ENV=${NODE_ENV:-development}
       - PORT=8001
     ports:
       - "8001:8000"
     volumes:
       - ./data-service:/app
+      - ../templates:/app/templates
       - /app/node_modules
     networks:
       - hmt-network
@@ -55,14 +57,15 @@ services:
     container_name: hmt-analytics-service
     restart: unless-stopped
     environment:
-      - MONGO_URI=${MONGO_URI:-mongodb+srv://tm3995:<db_password>@healthtracker.vc6hwcx.mongodb.net/?retryWrites=true&w=majority&appName=HealthTracker}
-      - DATA_SERVICE_URL=http://data-service:8000
-      - NODE_ENV=development
+      - MONGO_URI=${MONGO_URI}
+      - DATA_SERVICE_URL=http://data-service:8001
+      - NODE_ENV=${NODE_ENV:-development}
       - PORT=8002
     ports:
       - "8002:8000"
     volumes:
       - ./analytics-service:/app
+      - ../templates:/app/templates
       - /app/node_modules
     networks:
       - hmt-network
@@ -70,28 +73,9 @@ services:
       - data-service
       - mongo-dev
 
-  # Frontend Dashboard
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: hmt-frontend
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - hmt-network
-    depends_on:
-      - user-service
-      - data-service
-      - analytics-service
-
   # Local MongoDB for development
   mongo-dev:
-    image: mongo:latest
+    image: mongo
     container_name: hmt-mongo-dev
     restart: unless-stopped
     environment:
